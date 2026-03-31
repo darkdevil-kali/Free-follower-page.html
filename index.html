@@ -1,130 +1,296 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Free Follow Page</title>
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            background: #0f172a;
-            color: white;
-        }
-        .box {
-            margin-top: 50px;
-        }
-        input, select, button {
-            padding: 10px;
-            margin: 10px;
-            border-radius: 10px;
-            border: none;
-        }
-        button {
-            background: #22c55e;
-            color: white;
-            cursor: pointer;
-        }
-        #loading, #formPage, #adminPage, #memberPage {
-            display: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Website 93641</title>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js"></script>
+
+<style>
+body { margin:0; font-family:'Segoe UI',Arial; background:#f0f2f5;}
+header { background:#4a90e2; color:white; text-align:center; padding:30px; font-size:2em;}
+section { max-width:900px; margin:20px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+h2 { color:#333; margin-top:0;}
+button { padding:10px 20px; background:#4a90e2; color:white; border:none; border-radius:5px; cursor:pointer; margin:5px 0; transition:0.2s;}
+button:hover { background:#357ABD;}
+input[type=range], input[type=text], input[type=password], input[type=file] { width:100%; padding:10px; margin:5px 0; border-radius:5px; border:1px solid #ccc;}
+#sliderValue { font-weight:bold; }
+.download-btn { margin-left:10px; padding:5px 10px; font-size:0.9em;}
+.note { font-size:0.9em; color:#666; margin-top:10px;}
+.hidden { display:none; }
+.admin-panel { background:#e0e7ff; padding:15px; border-radius:10px; margin-top:10px;}
+.admin-panel h3 { margin-top:0; }
+
+.home-blocks { display:flex; justify-content:space-around; flex-wrap:wrap; margin-top:20px; }
+.home-block { background:#4a90e2; color:white; width:200px; height:120px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.2em; text-align:center; cursor:pointer; transition:0.3s;}
+.home-block:hover { transform:scale(1.05); background:#357ABD; box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+.animated-grid { display:flex; flex-wrap:wrap; gap:15px; margin-top:15px; }
+.card { background:#fff; border-radius:12px; padding:15px; width:200px; box-shadow:0 4px 12px rgba(0,0,0,0.1); text-align:center; transition: transform 0.3s, box-shadow 0.3s, background 0.3s; cursor:pointer; opacity:0; animation: fadeIn 0.6s ease forwards;}
+.card:hover { transform:translateY(-8px); box-shadow:0 8px 20px rgba(0,0,0,0.2); background:#f0f8ff; }
+@keyframes fadeIn { to { opacity:1; } }
+</style>
 </head>
-
 <body>
+<header>My Website 93641</header>
 
-<h1>🔥 Free Follow for Instagram 🔥</h1>
+<!-- Signup Section -->
+<section id="signupSection">
+<h2>Member Signup</h2>
+<input type="text" id="signupUsername" placeholder="Choose Username">
+<input type="password" id="signupPassword" placeholder="Choose Password">
+<button onclick="signupMember()">Sign Up</button>
+<p id="signupMsg" style="color:green;"></p>
+<p>Already a member? <button onclick="showLogin()">Login</button></p>
+</section>
 
-<div id="loginPage" class="box">
-    <select id="role">
-        <option value="user">User</option>
-        <option value="member">Member</option>
-        <option value="admin">Admin</option>
-    </select><br>
+<!-- Login Section -->
+<section id="loginSection" class="hidden">
+<h2>Login</h2>
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p id="loginMsg" style="color:red;"></p>
+</section>
 
-    <input type="text" id="name" placeholder="Enter Name"><br>
-    <input type="text" id="id" placeholder="Enter ID"><br>
+<!-- Beta Note -->
+<section class="hidden" id="betaSection">
+<p class="note">⚠️ This website is in beta version. It will work fully in about 14 days. Thanks for your support!</p>
+</section>
 
-    <button onclick="login()">Login</button>
+<!-- Home Options (4 Big Blocks) -->
+<section class="hidden" id="homeSection">
+<h2>Home Options</h2>
+<div class="home-blocks">
+    <div class="home-block" onclick="scrollToSection('requestSection')">Instagram Followers</div>
+    <div class="home-block" onclick="scrollToSection('moviesSection')">Movies</div>
+    <div class="home-block" onclick="scrollToSection('isoSection')">ISO Tools</div>
+    <div class="home-block" onclick="scrollToSection('toolsSection')">Linux/Windows Tools</div>
 </div>
+</section>
 
-<div id="loading">
-    <h2>Connecting to server... ⏳</h2>
-</div>
+<!-- Animated Latest Uploads -->
+<section class="hidden" id="homeDisplay">
+<h2>Latest Uploads</h2>
+<div id="animatedGrid" class="animated-grid"></div>
+</section>
 
-<div id="formPage">
-    <h2>Fill Details</h2>
-    <input type="number" placeholder="Followers"><br>
-    <label>Select followers (max 10):</label><br>
-    <input type="range" min="1" max="10" value="5"><br>
+<!-- Instagram Requests -->
+<section class="hidden" id="requestSection">
+<h2>Request Instagram Followers</h2>
+<input type="range" id="slider" min="0" max="1000" value="50">
+<span id="sliderValue">50</span>
+<button onclick="submitRequest()">Submit Request</button>
+<div id="requests"></div>
+</section>
 
-    <button onclick="submitForm()">Submit</button>
-</div>
+<!-- Movies Upload -->
+<section class="hidden" id="moviesSection">
+<h2>Upload a Movie/ISO/Tool</h2>
+<input type="file" id="fileInput">
+<button onclick="uploadFile()">Upload File</button>
+<div id="moviesList"></div>
+</section>
 
-<div id="memberPage">
-    <h2>✨ Member Panel ✨</h2>
-    <p>You have special powers 🚀</p>
-</div>
+<!-- ISO Downloads -->
+<section class="hidden" id="isoSection">
+<h2>ISO Downloads</h2>
+<p>Advanced users can download Linux distros:</p>
+<p><a href="https://github.com/torvalds/linux" target="_blank">Linux Kernel ISO</a></p>
+<p><a href="https://releases.ubuntu.com/" target="_blank">Ubuntu ISO</a></p>
+</section>
 
-<div id="adminPage">
-    <h2>👑 Admin Panel</h2>
-    <button onclick="togglePage()">Turn ON/OFF Website</button>
-    <p id="status">Status: ON</p>
-</div>
+<!-- Tools Section -->
+<section class="hidden" id="toolsSection">
+<h2>Linux/Windows Tools</h2>
+<p>VLC Media Player: <a href="https://www.videolan.org/vlc/" target="_blank">Download</a></p>
+<p>Ventoy USB Tool: <a href="https://www.ventoy.net/en/index.html" target="_blank">Download</a></p>
+</section>
 
-<div id="footer">
-    <h3>This is best page. Thanks for using ❤️</h3>
-</div>
+<!-- Admin Panel -->
+<section class="hidden" id="adminPanel" class="admin-panel">
+<h3>Admin Panel</h3>
+<h4>Pending Members</h4>
+<div id="pendingMembers"></div>
+<h4>Uploaded Files</h4>
+<div id="adminFiles"></div>
+<h4>Requests</h4>
+<div id="adminRequests"></div>
+</section>
 
 <script>
-let siteOn = true;
+// Firebase config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "909158308245",
+  appId: "1:909158308245:web:58d2a18e04e00e08b07e9c"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-function login() {
-    let role = document.getElementById("role").value;
-    let name = document.getElementById("name").value;
-    let id = document.getElementById("id").value;
+// Current user
+let currentUser = null;
 
-    if (!siteOn && role !== "admin") {
-        alert("Site is OFF by Admin");
+// Signup
+function signupMember(){
+    const username = document.getElementById("signupUsername").value;
+    const password = document.getElementById("signupPassword").value;
+    const msg = document.getElementById("signupMsg");
+    if(!username||!password){ msg.textContent="Enter username & password!"; return; }
+    db.collection("members").doc(username).set({approved:false,password:password})
+    .then(()=>{ 
+        msg.textContent="Signup successful! Waiting for admin approval.";
+        document.getElementById("signupUsername").value=""; 
+        document.getElementById("signupPassword").value="";
+        document.getElementById("signupSection").classList.add("hidden");
+        document.getElementById("loginSection").classList.remove("hidden");
+    });
+}
+
+function showLogin(){
+    document.getElementById("signupSection").classList.add("hidden");
+    document.getElementById("loginSection").classList.remove("hidden");
+}
+
+// Login
+function login(){
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const msg = document.getElementById("loginMsg");
+    if(username==="Akshay" && password==="hellogoogle"){
+        currentUser={role:"admin", name:"Akshay"};
+        showSections();
+        showAdminPanel();
+        loadAnimatedGrid();
+        msg.textContent="";
         return;
     }
-
-    if (role === "admin") {
-        if (name !== "Akshay" || id !== "hellogoogle") {
-            alert("Wrong Admin Credentials ❌");
-            return;
-        }
-    }
-
-    document.getElementById("loginPage").style.display = "none";
-    document.getElementById("loading").style.display = "block";
-
-    setTimeout(() => {
-        document.getElementById("loading").style.display = "none";
-
-        if (role === "admin") {
-            document.getElementById("adminPage").style.display = "block";
-        } else if (role === "member") {
-            document.getElementById("memberPage").style.display = "block";
-            document.getElementById("formPage").style.display = "block";
-        } else {
-            document.getElementById("formPage").style.display = "block";
-        }
-
-    }, 10000);
+    db.collection("members").doc(username).get().then(doc=>{
+        if(doc.exists && doc.data().approved && doc.data().password===password){
+            currentUser={role:"member", name:username};
+            showSections();
+            loadAnimatedGrid();
+            msg.textContent="";
+        } else msg.textContent="Invalid login or not approved by admin!";
+    });
 }
 
-function submitForm() {
-    document.getElementById("formPage").innerHTML = "<h2>Submitting form... ⏳</h2>";
-
-    setTimeout(() => {
-        document.getElementById("formPage").innerHTML = "<h2>✅ Submitted Successfully!</h2>";
-    }, 5000);
+// Show main sections
+function showSections(){
+    document.getElementById("loginSection").classList.add("hidden");
+    document.getElementById("signupSection").classList.add("hidden");
+    document.getElementById("betaSection").classList.remove("hidden");
+    document.getElementById("homeSection").classList.remove("hidden");
+    document.getElementById("homeDisplay").classList.remove("hidden");
+    document.getElementById("requestSection").classList.remove("hidden");
+    document.getElementById("moviesSection").classList.remove("hidden");
+    document.getElementById("isoSection").classList.remove("hidden");
+    document.getElementById("toolsSection").classList.remove("hidden");
 }
 
-function togglePage() {
-    siteOn = !siteOn;
-    document.getElementById("status").innerText = "Status: " + (siteOn ? "ON" : "OFF");
+// Scroll
+function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:"smooth"});}
+
+// Slider
+const slider=document.getElementById("slider");
+const sliderValue=document.getElementById("sliderValue");
+slider.addEventListener("input",()=>{sliderValue.textContent=slider.value;});
+
+// Requests
+async function submitRequest(){
+    if(!currentUser){ alert("Login first!"); return; }
+    const followers=slider.value;
+    await db.collection("requests").add({followers,user:currentUser.name,timestamp:Date.now()});
+    alert("Request submitted ✅"); updateRequests();
 }
+async function updateRequests(){
+    const snapshot=await db.collection("requests").orderBy("timestamp","desc").get();
+    const box=document.getElementById("requests"); box.innerHTML="<h3>All Requests:</h3>";
+    snapshot.forEach(doc=>{ const r=doc.data(); box.innerHTML+=`<p>${r.user}: ${r.followers} followers requested</p>`;});
+}
+
+// File Upload
+async function uploadFile(){
+    if(!currentUser){ alert("Login first!"); return; }
+    const file=document.getElementById("fileInput").files[0];
+    if(!file){ alert("Select a file!"); return; }
+    const storageRef=storage.ref('uploads/'+file.name);
+    await storageRef.put(file);
+    const url=await storageRef.getDownloadURL();
+    await db.collection("movies").add({name:file.name,link:url,uploader:currentUser.name,timestamp:Date.now()});
+    alert("File uploaded ✅"); loadMovies(); loadAnimatedGrid();
+}
+async function loadMovies(){
+    const snapshot=await db.collection("movies").orderBy("timestamp","desc").get();
+    const box=document.getElementById("moviesList"); box.innerHTML="<h3>Available Files:</h3>";
+    snapshot.forEach(doc=>{
+        const m=doc.data(); box.innerHTML+=`<p>${m.name} by ${m.uploader} <button class="download-btn" onclick="window.open('${m.link}')">Download</button></p>`;
+    });
+}
+
+// Admin Panel
+function showAdminPanel(){
+    document.getElementById("adminPanel").classList.remove("hidden");
+    loadPendingMembers(); loadAdminFiles(); loadAdminRequests();
+}
+async function loadPendingMembers(){
+    const snapshot=await db.collection("members").where("approved","==",false).get();
+    const box=document.getElementById("pendingMembers"); box.innerHTML="";
+    snapshot.forEach(doc=>{
+        const name=doc.id;
+        const div=document.createElement("div");
+        div.innerHTML=`${name} <button onclick="approveMember('${name}')">Approve</button>`;
+        box.appendChild(div);
+    });
+}
+async function approveMember(username){
+    await db.collection("members").doc(username).update({approved:true});
+    alert(`${username} approved ✅`); loadPendingMembers();
+}
+async function loadAdminFiles(){
+    const snapshot=await db.collection("movies").orderBy("timestamp","desc").get();
+    const box=document.getElementById("adminFiles"); box.innerHTML="";
+    snapshot.forEach(doc=>{
+        const m=doc.data();
+        const div=document.createElement("div");
+        div.innerHTML=`${m.name} by ${m.uploader} <button onclick="window.open('${m.link}')">Download</button> <button onclick="deleteFile('${doc.id}','${m.name}')">Delete</button>`;
+        box.appendChild(div);
+    });
+}
+async function deleteFile(docId,fileName){
+    const storageRef=storage.ref('uploads/'+fileName); await storageRef.delete();
+    await db.collection("movies").doc(docId).delete(); alert(`${fileName} deleted ✅`);
+    loadMovies(); loadAdminFiles(); loadAnimatedGrid();
+}
+async function loadAdminRequests(){
+    const snapshot=await db.collection("requests").orderBy("timestamp","desc").get();
+    const box=document.getElementById("adminRequests"); box.innerHTML="";
+    snapshot.forEach(doc=>{ const r=doc.data(); box.innerHTML+=`<p>${r.user}: ${r.followers} followers requested</p>`;});
+}
+
+// Animated grid
+function loadAnimatedGrid(){
+    const grid=document.getElementById("animatedGrid");
+    db.collection("movies").orderBy("timestamp","desc").onSnapshot(snapshot=>{
+        grid.innerHTML="";
+        snapshot.forEach(doc=>{
+            const m=doc.data();
+            const div=document.createElement("div");
+            div.classList.add("card"); div.innerHTML=`<h4>${m.name}</h4><p>By ${m.uploader}</p><button onclick="window.open('${m.link}')">Download</button>`;
+            grid.appendChild(div);
+        });
+    });
+}
+
+// Initial load
+loadMovies(); updateRequests();
 </script>
-
 </body>
 </html>
