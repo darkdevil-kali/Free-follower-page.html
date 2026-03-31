@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Platform</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1e1e2f, #2c2c54);
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    font-size: 3rem;
+}
+
+button {
+    padding: 12px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #00a8ff;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #0097e6;
+    transform: scale(1.1);
+}
+
+/* HOME GRID */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 20px;
+    font-size: 1.5rem;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.2);
+}
+
+/* FORM */
+input {
+    padding: 10px;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    border: none;
+    margin: 10px;
+}
+
+/* HIDDEN */
+.hidden {
+    display: none;
+}
+
+/* SLIDER */
+.slider {
+    width: 80%;
+}
+
+/* ANIMATION */
+.fade {
+    animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="fade">
+    <h1>Login</h1>
+    <input id="username" placeholder="Enter username"><br>
+    <input id="password" type="password" placeholder="Enter password"><br>
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- HOME -->
+<div id="home" class="hidden fade">
+    <h1>Welcome</h1>
+
+    <div class="grid">
+        <div class="card" onclick="openSection('insta')">Instagram Followers</div>
+        <div class="card" onclick="openSection('movies')">Movies</div>
+        <div class="card" onclick="openSection('iso')">Linux ISO</div>
+        <div class="card" onclick="openSection('tools')">Tools</div>
+    </div>
+</div>
+
+<!-- INSTAGRAM -->
+<div id="insta" class="hidden fade">
+    <h1>Instagram Followers</h1>
+
+    <input placeholder="Enter ID"><br>
+
+    <input type="range" min="10" max="1000" value="100" class="slider" id="slider">
+    <p>Followers: <span id="count">100</span></p>
+
+    <button onclick="submitRequest()">Request</button>
+
+    <p>⚠️ Website is in beta version. It will work in about 14 days. Thanks for your support.</p>
+
+    <button onclick="goHome()">⬅ Back</button>
+</div>
+
+<!-- MOVIES -->
+<div id="movies" class="hidden fade">
+    <h1>Movies 🎬</h1>
+    <p>All new movies in high quality in Hindi available here.</p>
+
+    <div>
+        <p>Movie Name (Sample)</p>
+        <button>Download</button>
+    </div>
+
+    <div id="uploadMovie" class="hidden">
+        <input placeholder="Upload movie link">
+        <button>Upload</button>
+    </div>
+
+    <button onclick="goHome()">⬅ Back</button>
+</div>
+
+<!-- ISO -->
+<div id="iso" class="hidden fade">
+    <h1>Linux ISO 🐧</h1>
+    <p>Download untouched Linux distros from GitHub.</p>
+
+    <div>
+        <p>Ubuntu ISO</p>
+        <button>Download</button>
+    </div>
+
+    <button onclick="goHome()">⬅ Back</button>
+</div>
+
+<!-- TOOLS -->
+<div id="tools" class="hidden fade">
+    <h1>Tools ⚙️</h1>
+    <p>Must-have tools for Linux & Windows</p>
+
+    <div>
+        <p>VLC Media Player</p>
+        <button>Download</button>
+    </div>
+
+    <div>
+        <p>Ventoy</p>
+        <button>Download</button>
+    </div>
+
+    <button onclick="goHome()">⬅ Back</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="hidden fade">
+    <h1>Admin Panel</h1>
+    <p>All Requests:</p>
+    <div id="requests"></div>
+    <button onclick="goHome()">⬅ Back</button>
+</div>
+
+<script>
+let role = "";
+let requests = [];
+
+// LOGIN SYSTEM
+function login() {
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+
+    if (user === "admin" && pass === "123") {
+        role = "admin";
+        show("adminPanel");
+    } else if (user === "member" && pass === "123") {
+        role = "member";
+        show("home");
+        document.getElementById("uploadMovie").classList.remove("hidden");
+    } else {
+        role = "user";
+        show("home");
+    }
+}
+
+// NAVIGATION
+function show(id) {
+    document.querySelectorAll("body > div").forEach(d => d.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+}
+
+function openSection(id) {
+    show(id);
+}
+
+function goHome() {
+    show("home");
+}
+
+// SLIDER
+let slider = document.getElementById("slider");
+let count = document.getElementById("count");
+
+slider.oninput = function() {
+    count.innerText = this.value;
+}
+
+// REQUEST
+function submitRequest() {
+    let req = "Request for " + slider.value + " followers";
+    requests.push(req);
+    alert("Request Submitted");
+
+    if (role === "admin") {
+        updateAdmin();
+    }
+}
+
+// ADMIN VIEW
+function updateAdmin() {
+    let box = document.getElementById("requests");
+    box.innerHTML = "";
+    requests.forEach(r => {
+        box.innerHTML += "<p>" + r + "</p>";
+    });
+}
+</script>
+
+</body>
+</html>
